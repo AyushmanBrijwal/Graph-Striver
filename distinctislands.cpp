@@ -17,7 +17,7 @@ class Solution {
       int delcol[] = {0, 1, 0, -1};
       
       //check for top bottom left right
-      for(int = 0; i< 4; i++){
+      for(int i = 0; i< 4; i++){
           int nrow = row + delrow[i];
           int ncol = col + delcol[i];
           //check for valid coorninates and unvisited 1's
@@ -33,12 +33,13 @@ class Solution {
         int n = grid.size();
         int m = grid[0].size();
         vector<vector<int>>vis(n,vector<int>(m,0));
-        set<pair<int,int>>st;
+        set<vector<pair<int,int>>>st;
         for(int i =0;i<n;i++){
             for(int j=0;j<m;j++){
                 if(grid[i][j] == 1 && !vis[i][j]){
                   vector<pair<int,int>>vec; //list of 1,s coordinates created
-                  dfs(i, j, grid, vec, i, j)
+                  dfs(i, j, grid, vis, vec, i, j);
+                  st.insert(vec);
                }
             }
         }
