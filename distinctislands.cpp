@@ -14,7 +14,7 @@ class Solution {
       int n = grid.size();
       int m = grid[0].size();
       int delrow[] = {-1, 0, +1, 0};
-      int delcol[] = {0, 1, 0, -1};
+      int delcol[] = {0, -1, 0, 1};
       
       //check for top bottom left right
       for(int i = 0; i< 4; i++){
