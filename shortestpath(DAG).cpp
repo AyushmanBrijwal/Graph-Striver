@@ -3,105 +3,91 @@ using namespace std;
 
 // } Driver Code Ends
 // User function Template for C++
-
-class Solution{
-    private:
-    //now func for topo sort (works for multiple compnenents as well)
-    vector<int>topoSort(int V, vector<int>adj[]){
-        int ind[V] = {0};
-        for(int i=0; i<V; i++){
-            for(auto it: adj[i]){
-                ind[it]++;
+class Solution {
+  private:
+    void dfs(int n, vector<pair<int,int>>adj[], int vis[], stack<int>&st ){
+        vis[n] = 1;
+        for(auto it: adj[n]){ //traverse all adj nodes
+            int v = it.first; //v is node right at first
+            if(!vis[v]){
+                dfs(v, adj,vis,st);
             }
         }
-        
-        queue<int>q;
-        for(int i=0; i< V; i++){
-            if(ind[i]==0){
-                q.push(i);
-            }
-        }
-        
-        vector<int>ans;
-        while(!q.empty()){
-            int n = q.front();
-            q.pop();
-            ans.push_back(n);
-            //node is in ans(topo) vector so remove its indegree
-            for(auto it: adj[n]){
-                ind[it]--;
-                if(ind[it] == 0) q.push(it);
-            }
-        }
-        return ans;
+        st.push(n);
     }
-    public:
-    string findOrder(string dict[], int N, int K) {
-        //code here
-        vector<int>adj[K]; //k size adj list
-        for(int i=0; i<N-1; i++){ //iterate through dict N-1 times
-            string s1 = dict[i];
-            string s2 = dict[i+1];
-            int len = min(s1.size(), s2.size()); //compare till len of smaller string
-            for(int ptr =0;ptr< len;ptr++){
-                if(s1[ptr] != s2[ptr]){
-                    adj[s1[ptr] - 'a'].push_back(s2[ptr] - 'a'); //s1 has directed edge towards s2 and by sub a convertd into numeric
-                    break;
+  public:
+     vector<int> shortestPath(int N,int M, vector<vector<int>>& edges){
+        // code here
+        vector<pair<int,int>>adj[N];
+        for(int i=0; i<M; i++){ //traverse across no. of edges
+            int u = edges[i][0];
+            int v = edges[i][1];
+            int wt = edges[i][2]; //acc to given input
+            adj[u].push_back({v, wt});
+        }
+        
+        //find the topo sort
+        int vis[N] = {0};
+        stack<int>st;
+        for(int i=0; i<N; i++){
+            if(!vis[i]){
+                dfs(i, adj, vis, st);
+            }
+        }
+        // step 2 now do dist algo
+        vector<int>dis(N);
+        for(int i =0; i<N; i++){
+            dis[i] = 1e9; //init mark all dist as infinity
+        }
+        dis[0] = 0; //dist of src node is always 0;
+        while(!st.empty()){
+            int n = st.top();
+            st.pop();
+            
+            for(auto it: adj[n]){
+                int v = it.first;
+                int wt = it.second;
+                //now relax node
+                if(dis[n] + wt < dis[v]){
+                    dis[v] = dis[n] + wt; //then update it to new node
                 }
             }
         }
-        vector<int> topo  = topoSort(K, adj); //call topo func
-        string ans = "";
-        for(auto it: topo){
-            ans = ans + char(it + 'a'); //changing back to char
+        for(int i=0; i<N; i++){
+            if(dis[i] == 1e9){
+                dis[i] = -1;
+            }
         }
-        return ans;
+        
+        return dis;
+                
+        
     }
 };
 
 
+
 //{ Driver Code Starts.
-string order;
-bool f(string a, string b) {
-    int p1 = 0;
-    int p2 = 0;
-    for (int i = 0; i < min(a.size(), b.size()) and p1 == p2; i++) {
-        p1 = order.find(a[i]);
-        p2 = order.find(b[i]);
-        //	cout<<p1<<" "<<p2<<endl;
-    }
-
-    if (p1 == p2 and a.size() != b.size()) return a.size() < b.size();
-
-    return p1 < p2;
-}
-
-// Driver program to test above functions
 int main() {
     int t;
     cin >> t;
     while (t--) {
-        int N, K;
-        cin >> N >> K;
-        string dict[N];
-        for (int i = 0; i < N; i++) cin >> dict[i];
-        
+        int n, m;
+        cin >> n >> m;
+        vector<vector<int>> edges;
+        for(int i=0; i<m; ++i){
+            vector<int> temp;
+            for(int j=0; j<3; ++j){
+                int x; cin>>x;
+                temp.push_back(x);
+            }
+            edges.push_back(temp);
+        }
         Solution obj;
-        string ans = obj.findOrder(dict, N, K);
-        order = "";
-        for (int i = 0; i < ans.size(); i++) order += ans[i];
-
-        string temp[N];
-        std::copy(dict, dict + N, temp);
-        sort(temp, temp + N, f);
-
-        bool f = true;
-        for (int i = 0; i < N; i++)
-            if (dict[i] != temp[i]) f = false;
-
-        if(f)cout << 1;
-        else cout << 0;
-        cout << endl;
+        vector<int> res = obj.shortestPath(n, m, edges);
+        for (auto x : res) {
+            cout << x << " ";
+        }
+        cout << "\n";
     }
-    return 0;
 }
